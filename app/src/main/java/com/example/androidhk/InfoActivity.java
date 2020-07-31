@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.example.androidhk.database.Database;
 import com.example.androidhk.model.Info;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -40,9 +41,11 @@ TextView ngaysinh;
 LinearLayout linearLayout;
 TextView cm;
 String username;
+TextView gioitinh;
 Database database;
 TextView hocvan;
     Date c = Calendar.getInstance().getTime();
+
     SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
     String formattedDate = df.format(c);
 @Override
@@ -66,11 +69,16 @@ protected void onCreate(Bundle savedInstanceState) {
     cm.setVisibility(View.GONE);
     linearLayout=findViewById(R.id.layouttt);
     date=findViewById(R.id.date1);
+    gioitinh=findViewById(R.id.gioitinh);
     database=new Database(this);
 
 
     username=getIntent().getStringExtra("username");
-    info=database.getInfo(username);
+    try {
+        info=database.getInfo(username);
+    } catch (ParseException e) {
+        e.printStackTrace();
+    }
     if(info==null){
         linearLayout.setVisibility(View.GONE);
     }else {
@@ -83,17 +91,20 @@ protected void onCreate(Bundle savedInstanceState) {
         hocvan.setText(info.getHocvan());
         daotao.setText(info.getQuaTrinhDaoTao());
         lamviec.setText(info.getQuaTrinhLamViec());
-        date.setText(info.getDate());
+        String ngay=info.getDate().toString();
+        date.setText(ngay);
+        gioitinh.setText(info.getGioiTinh());
         ngaysinh.setText(info.getNgaysinh());
 
         String[] dob = info.getNgaysinh().split("-");
 
         String[] today = formattedDate.split("-");
 
-
-        if ((Integer.parseInt(dob[0]) == Integer.parseInt(today[0]) && Integer.parseInt(dob[1]) == Integer.parseInt(today[1])) == true) {
-            cm.setVisibility(View.VISIBLE);
-        }
+if(dob.length!=1) {
+    if ((Integer.parseInt(dob[0]) == Integer.parseInt(today[0]) && Integer.parseInt(dob[1]) == Integer.parseInt(today[1]))) {
+        cm.setVisibility(View.VISIBLE);
+    }
+}
     }
 
 

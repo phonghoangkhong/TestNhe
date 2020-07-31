@@ -4,6 +4,7 @@ package com.example.androidhk;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
@@ -38,12 +39,17 @@ public class MainActivity extends AppCompatActivity {
                 User user=new User(username.getText().toString(),password.getText().toString());
                 User out= database.findUserByName(username.getText().toString());
                 if(user.equals(out)){
-
-                    Intent intent=new Intent();
-                    intent.putExtra("username",username.getText().toString());
-                    intent.setClass(MainActivity.this,InfoActivity.class);
-                    startActivity(intent);
-
+                    if(!user.getUsername().equals("admin")) {
+                        Intent intent = new Intent();
+                        intent.putExtra("username", username.getText().toString());
+                        intent.setClass(MainActivity.this, InfoActivity.class);
+                        startActivity(intent);
+                    }else{
+                        Intent intent = new Intent();
+                        intent.putExtra("username", username.getText().toString());
+                        intent.setClass(MainActivity.this, AdminActivity.class);
+                        startActivity(intent);
+                    }
                 }
             }
         });

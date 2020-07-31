@@ -16,7 +16,12 @@ import android.widget.TextView;
 import com.example.androidhk.database.Database;
 import com.example.androidhk.model.Info;
 
+import java.text.ParseException;
+import java.util.Date;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class AddActivity extends AppCompatActivity {
    EditText name2, tuoi2,quequan2,daotao2,lamviec2,date;
@@ -30,7 +35,8 @@ public class AddActivity extends AppCompatActivity {
 String phongban3;
 Database database;
 String trangthaiuser;
-
+Spinner gioitinh;
+String gioitinh2;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,7 +45,7 @@ String trangthaiuser;
         btnThem=findViewById(R.id.btncn);
         database=new Database(this);
         quequan2=findViewById(R.id.quequan2);
-
+     gioitinh=findViewById(R.id.gioitinh2);
         tuoi2=findViewById(R.id.tuoi2);
         hocvan2=findViewById(R.id.hocvan2);
         phongban=(Spinner)findViewById(R.id.phong2);
@@ -61,6 +67,24 @@ String trangthaiuser;
         listphongBan.add("CNTT");
         listphongBan.add("Sale");
         listphongBan.add("Mar");
+        final ArrayList<String > listGioiTinh=new ArrayList<>();
+        listGioiTinh.add("Nam");
+        listGioiTinh.add("Nữ");
+        ArrayAdapter<String> adapter4=new ArrayAdapter<String>(this,
+                android.R.layout.simple_list_item_1,listGioiTinh
+                );
+        gioitinh.setAdapter(adapter4);
+        gioitinh.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                 gioitinh2=listGioiTinh.get(position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                   gioitinh2="Nam";
+            }
+        });
         ArrayAdapter<String> adapter=new ArrayAdapter<String>
                 (
                         this,
@@ -128,13 +152,18 @@ String trangthaiuser;
         if(getIntent().getStringExtra("state").equals("1")){
             String username=getIntent().getStringExtra("username");
             database=new Database(this);
-            Info info=database.getInfo(username);
+            Info info= null;
+            try {
+                info = database.getInfo(username);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
             name2.setText(info.getTen());
             tuoi2.setText(info.getTuoi());
             quequan2.setText(info.getQuequan());
             daotao2.setText(info.getQuaTrinhDaoTao());
             lamviec2.setText(info.getQuaTrinhLamViec());
-            date.setText(info.getDate());
+            date.setText(info.getDate().toString());
             ngaysinh.setText(info.getNgaysinh());
         }
         btnThem.setOnClickListener(new View.OnClickListener() {
@@ -151,8 +180,11 @@ String trangthaiuser;
                 String daotao=daotao2.getText().toString();
                 String lamviec=lamviec2.getText().toString();
                 String ngaysinh2=ngaysinh.getText().toString();
+               String gioiTinh=gioitinh2;
                 String username=getIntent().getStringExtra("username");
-                Info info=new Info(nameADD,ngaysinh2,tuoiADD,phongban,username,trangthai2,quequan,hocvan2,daotao,lamviec,thoigian);
+
+
+                Info info=new Info(nameADD,gioiTinh,ngaysinh2,tuoiADD,phongban,username,trangthai2,quequan,hocvan2,daotao,lamviec,thoigian);
                 System.out.println(info);
 
 

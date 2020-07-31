@@ -5,6 +5,7 @@ import java.util.Date;
 public class Info {
     int id;
     String ten;
+    String gioiTinh;
     String tuoi;
     String phongban;
     String username;
@@ -13,8 +14,8 @@ public class Info {
     String hocvan;
     String quaTrinhDaoTao;
     String quaTrinhLamViec;
-    String date;
-   String ngaysinh;
+   String  date;
+    String ngaysinh;
 
 
     public Info() {
@@ -28,9 +29,19 @@ public class Info {
         this.ngaysinh = ngaysinh;
     }
 
-    public Info(String ten, String ngaysinh, String tuoi, String phongban, String username, String trangthai, String quequan, String hocvan, String quaTrinhDaoTao, String quaTrinhLamViec, String date) {
-        this.ngaysinh=ngaysinh;
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public Info(String ten, String gioiTinh, String ngaysinh, String tuoi, String phongban, String username, String trangthai, String quequan, String hocvan, String quaTrinhDaoTao, String quaTrinhLamViec, String date) {
+        this.gioiTinh=gioiTinh;
+
         this.ten = ten;
+        this.ngaysinh=ngaysinh;
         this.tuoi = tuoi;
         this.phongban = phongban;
         this.username = username;
@@ -74,13 +85,15 @@ public class Info {
         this.quaTrinhLamViec = quaTrinhLamViec;
     }
 
-    public String getDate() {
-        return date;
+    public String getGioiTinh() {
+        return gioiTinh;
     }
 
-    public void setDate(String date) {
-        this.date = date;
+    public void setGioiTinh(String gioiTinh) {
+        this.gioiTinh = gioiTinh;
     }
+
+
 
     public String getTrangthai() {
         return trangthai;

@@ -10,6 +10,15 @@ import com.example.androidhk.model.User;
 
 import com.example.androidhk.model.Info;
 
+import java.text.ParseException;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
 
 public class Database extends SQLiteOpenHelper {
  private static String DB_NAME="qlnv";
@@ -32,12 +41,31 @@ public class Database extends SQLiteOpenHelper {
         String queryCreate1=String.format("CREATE TABLE %s(%s TEXT PRIMARY KEY,%s TEXT)",User_table,Username,Password);
         String queryCreate2="CREATE TABLE info(id INTEGER PRIMARY KEY AUTOINCREMENT,ten TEXT, tuoi INTEGER, phongban TEXT," +
                 "username TEXT ,trangthai TEXT,quequan TEXT,hocvan TEXT, quaTrinhDaoTao TEXT, quaTrinhLamviec TEXT, " +
-                "date TEXT,ngaysinh text,FOREIGN KEY(username) references User(username))";
+                "date Date ,ngaysinh text,gioitinh TEXT,FOREIGN KEY(username) references User(username))";
         String inserQuery="INSERT INTO User(username,password) values('phongkh','phongkh123')";
+        String inserQuery2="INSERT INTO User(username,password) values('admin','phongkh123')";
 
         db.execSQL(queryCreate1);
         db.execSQL(inserQuery);
         db.execSQL(queryCreate2);
+        db.execSQL(inserQuery2);
+
+    }
+    public void  add(){
+              User user=new User("ph","111111");
+            Info info=new Info("phongkh","Nam","15-02-1999","21","CNTT","ph","Đang làm việc","HP","Đại hoc","","","2016-10-15");
+            User user2=new User("ph2","111111");
+            Info info2=new Info("phongkh2","Nữ","15-02-2000","20","Mar","ph2","Đang làm việc","HP","Đại hoc","","","2017-10-15");
+            User user3=new User("ph3","111111");
+            Info info3=new Info("phongkh3","Nam","15-02-1999","21","Mar","ph","Đang làm việc","HP","Đại hoc","","","2018-10-15");
+            User user4=new User("ph4","111111");
+            Info info4=new Info("phongkh4","Nữ","15-02-1999","21","Sale","ph","Đang làm việc","HP","Đại hoc","","","2019-10-15");
+            User user5=new User("ph5","111111");
+            Info info5=new Info("phongkh5","Nam","15-02-1999","21","CNTT","ph","Đang làm việc","HP","Đại hoc","","","2016-10-15");
+       addUser(user);
+        addUser(user2);    addUser(user3);    addUser(user4);    addUser(user5);
+    addInfo(info);
+        addInfo(info2);   addInfo(info3);   addInfo(info4);   addInfo(info5);
     }
     public void addUser(User user ){
         SQLiteDatabase database=getWritableDatabase();
@@ -75,6 +103,7 @@ public class Database extends SQLiteOpenHelper {
          ContentValues contentValues=new ContentValues();
          contentValues.put("ten",info.getTen());
          contentValues.put("tuoi",info.getTuoi());
+         contentValues.put("gioitinh",info.getGioiTinh());
          contentValues.put("phongban",info.getPhongban());
          contentValues.put("username",info.getUsername());
          contentValues.put("trangthai",info.getTrangthai());
@@ -82,15 +111,15 @@ public class Database extends SQLiteOpenHelper {
          contentValues.put("hocvan",info.getHocvan());
          contentValues.put("quaTrinhDaoTao",info.getQuaTrinhDaoTao());
          contentValues.put("quaTrinhLamViec",info.getQuaTrinhLamViec());
-        contentValues.put("date",info.getDate());
+         contentValues.put("date",info.getDate().toString());
          contentValues.put("ngaysinh",info.getNgaysinh());
          database.insert("info",null,contentValues);
          database.close();
     }
-    public Info getInfo(String username){
+    public Info getInfo(String username) throws ParseException {
         SQLiteDatabase database=getReadableDatabase();
         String [] cot={"id","ten","tuoi","phongban","trangThai","quequan","hocvan" ,"quaTrinhDaoTao" ,"quaTrinhLamviec" ,
-                "date","username","ngaysinh"};
+                "date","username","ngaysinh","gioitinh"};
          String clause="username= ?";
          String args[]=new String[]{username};
          Cursor cursor=database.query("info",cot,clause,args,null,null,null);
@@ -105,9 +134,12 @@ public class Database extends SQLiteOpenHelper {
              info.setHocvan(cursor.getString(6));
              info.setQuaTrinhDaoTao(cursor.getString(7));
              info.setQuaTrinhLamViec(cursor.getString(8));
-             info.setDate(cursor.getString(9));
+             String date=cursor.getString(9);
+
+           info.setDate(date);
              info.setUsername(cursor.getString(10));
              info.setNgaysinh(cursor.getString(11));
+             info.setGioiTinh(cursor.getString(12));
              System.out.println(info);
              return info;
          }else{
@@ -120,6 +152,7 @@ public class Database extends SQLiteOpenHelper {
         SQLiteDatabase database=getWritableDatabase();
         ContentValues contentValues=new ContentValues();
         contentValues.put("ten",info.getTen());
+        contentValues.put("gioitinh",info.getGioiTinh());
         contentValues.put("tuoi",info.getTuoi());
         contentValues.put("phongban",info.getPhongban());
         contentValues.put("username",info.getUsername());
@@ -134,6 +167,93 @@ public class Database extends SQLiteOpenHelper {
       int a=  database.update("info",contentValues,clause,args);
         System.out.println(a);
         database.close();
+    }
+    public ArrayList<Info> getListInfoCNTT(){
+        ArrayList<Info> listInfo=new ArrayList<>();
+       String query="SELECT id,ten from info where phongban=?";
+       SQLiteDatabase sqLiteDatabase=getReadableDatabase();
+
+         Cursor cursor=  sqLiteDatabase.rawQuery(query,new String[]{"CNTT"});
+         if(cursor.moveToFirst()) {
+             do {
+                 Info info = new Info();
+                 info.setId(cursor.getInt(0));
+                 info.setTen(cursor.getString(1));
+                 listInfo.add(info);
+
+             } while (cursor.moveToNext());
+         }
+return listInfo;
+    }
+    public ArrayList<Info> getListInfoCNTT2(){
+        ArrayList<Info> listInfo=new ArrayList<>();
+        String query="SELECT id,ten from info where phongban=? and  cast((julianday() - julianday(date)) as integer) >365*3";
+        SQLiteDatabase sqLiteDatabase=getReadableDatabase();
+
+        Cursor cursor=  sqLiteDatabase.rawQuery(query,new String[]{"CNTT"});
+        if(cursor.moveToFirst()) {
+            do {
+                Info info = new Info();
+                info.setId(cursor.getInt(0));
+                info.setTen(cursor.getString(1));
+                listInfo.add(info);
+
+            } while (cursor.moveToNext());
+        }
+        return listInfo;
+    }
+    public ArrayList<Info> getGT(){
+        ArrayList<Info> listInfo=new ArrayList<>();
+        String query="SELECT count(*) , gioitinh from info group by gioitinh ";
+        SQLiteDatabase sqLiteDatabase=getReadableDatabase();
+
+        Cursor cursor=  sqLiteDatabase.rawQuery(query,new String[]{});
+        if(cursor.moveToFirst()) {
+            do {
+                Info info = new Info();
+                info.setId(cursor.getInt(0));
+                info.setTen(cursor.getString(1));
+                listInfo.add(info);
+
+            } while (cursor.moveToNext());
+        }
+        return listInfo;
+    }
+
+    public ArrayList<Info> getDT(){
+        ArrayList<Info> listInfo=new ArrayList<>();
+        String query="SELECT count(*),tuoi from info group by tuoi ";
+        SQLiteDatabase sqLiteDatabase=getReadableDatabase();
+
+        Cursor cursor=  sqLiteDatabase.rawQuery(query,new String[]{});
+        if(cursor.moveToFirst()) {
+            do {
+                Info info = new Info();
+                info.setId(cursor.getInt(0));
+                info.setTen(cursor.getString(1));
+                listInfo.add(info);
+
+            } while (cursor.moveToNext());
+        }
+        return listInfo;
+    }
+
+    public ArrayList<Info> getPB(){
+        ArrayList<Info> listInfo=new ArrayList<>();
+        String query="SELECT count(*), phongban from info group by phongban";
+        SQLiteDatabase sqLiteDatabase=getReadableDatabase();
+
+        Cursor cursor=  sqLiteDatabase.rawQuery(query,new String[]{});
+        if(cursor.moveToFirst()) {
+            do {
+                Info info = new Info();
+                info.setId(cursor.getInt(0));
+                info.setTen(cursor.getString(1));
+                listInfo.add(info);
+
+            } while (cursor.moveToNext());
+        }
+        return listInfo;
     }
 
 }
